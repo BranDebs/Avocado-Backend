@@ -1,0 +1,8 @@
+feature: feat--*
+fix: fix--*
+docs: docs--*
+ci: ci--*
+build: build--*
+performance: perf--*
+refactor: refactor--*
+test: test--*
