@@ -5,7 +5,7 @@ import (
 )
 
 type Account struct {
-	Email     string
-	Name      string
-	CreatedAt *time.Time
+	Email     string     `json:"email"`
+	Name      string     `json:"name"`
+	CreatedAt *time.Time `json:"created_at"`
 }
