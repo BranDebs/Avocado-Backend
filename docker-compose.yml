@@ -1,0 +1,10 @@
+version: "3.7"
+
+services:
+  avocadoro-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: avocadoro-backend
+    ports:
+      - '9090:8080'
