@@ -24,4 +24,5 @@ jobs:
     - stage: build
       script: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
     - stage: test
-      script: docker exec avocadoro-backend sh -c "go test ./... -v"
+      install: go mod download
+      script: go test ./... -v
