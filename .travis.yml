@@ -18,6 +18,8 @@ stages:
 
 jobs:
   include:
+    - stage: check
+      script: ls -la
     - stage: build
       script: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
     - stage: test
