@@ -16,16 +16,13 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 stages:
-  - check
   - build
   - test
 
 jobs:
   include:
-    - stage: check
-      script: ls -la
-    - stage: build
-      script: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
     - stage: test
       install: go mod download
       script: go test ./... -v
+    - stage: build
+      script: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
