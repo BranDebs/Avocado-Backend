@@ -16,8 +16,8 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 stages:
-  - build
   - test
+  - build
 
 jobs:
   include:
