@@ -1,3 +1,6 @@
+/*
+Package json implements the serializing and deserializing of user accounts.
+*/
 package json
 
 import (
@@ -12,6 +15,9 @@ var (
 	ErrDecodeNilByteSlice = errors.New("AccountSerializer.Decode: cannot decode nil bytes")
 )
 
+/*
+AccountSerializer serializes/deserializes accounts in the json format.
+*/
 type AccountSerializer struct{}
 
 func (*AccountSerializer) Encode(acct *account.Account) ([]byte, error) {
