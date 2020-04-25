@@ -2,7 +2,7 @@ package json
 
 import (
 	"bytes"
-	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -64,7 +64,8 @@ func TestAccountDecode(t *testing.T) {
 		err     error
 	}
 
-	time := time.Date(2018, 2, 8, 0, 0, 0, 0, time.Local)
+	tLoc, _ := time.LoadLocation("Asia/Singapore")
+	time := time.Date(2018, 2, 8, 0, 0, 0, 0, tLoc)
 
 	tests := []struct {
 		name string
@@ -94,10 +95,20 @@ func TestAccountDecode(t *testing.T) {
 				return
 			}
 
-			if !reflect.DeepEqual(test.want.account, acc) {
+			if test.want.account == nil && acc == nil {
+				return
+			}
+
+			if !hasAccountValues(*test.want.account, *acc) {
 				t.Errorf("want (%v) got (%v)", *test.want.account, *acc)
 				return
 			}
 		})
 	}
+}
+
+func hasAccountValues(a account.Account, b account.Account) bool {
+	return strings.Compare(a.Name, b.Name) == 0 &&
+		strings.Compare(a.Email, b.Email) == 0 &&
+		a.CreatedAt.Equal(*b.CreatedAt)
 }
