@@ -18,7 +18,8 @@ func TestAccountEncode(t *testing.T) {
 		err  error
 	}
 
-	time := time.Date(2018, 2, 8, 0, 0, 0, 0, time.Local)
+	tLoc, _ := time.LoadLocation("Asia/Singapore")
+	time := time.Date(2018, 2, 8, 0, 0, 0, 0, tLoc)
 
 	tests := []struct {
 		name string
@@ -48,7 +49,12 @@ func TestAccountEncode(t *testing.T) {
 				t.Errorf("want (%v) got (%v)", test.want.err, err)
 				return
 			}
-			if !bytes.Equal(data, test.want.data) {
+
+			if test.want.data == nil && data == nil {
+				return
+			}
+
+			if !bytes.Equal(test.want.data, data) {
 				t.Errorf("want (%s) got (%s)", string(test.want.data), string(data))
 				return
 			}
