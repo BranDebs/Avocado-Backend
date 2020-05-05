@@ -1,12 +1,17 @@
 package postgres
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/BranDebs/Avocado-Backend/account"
 
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
+)
+
+var (
+	ErrDupAccount error = errors.New("duplicate account error")
 )
 
 type postgresRepository struct {
@@ -49,8 +54,13 @@ func (*postgresRepository) Find(email string) (*account.Account, error) {
 	return nil, nil
 }
 
-func (*postgresRepository) Store(account *account.Account) error {
-	return nil
+func (repo *postgresRepository) Store(account *account.Account) error {
+	if repo.db.NewRecord(account) {
+		// can store
+		repo.db.Create(account)
+		return nil
+	}
+	return ErrDupAccount
 }
 
 func (*postgresRepository) Delete(email string) (*account.Account, error) {
