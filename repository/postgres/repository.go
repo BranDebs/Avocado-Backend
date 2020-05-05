@@ -50,8 +50,13 @@ func NewPostgresRepository(settings ConnSettings) (account.AccountRepository, er
 	return &repo, nil
 }
 
-func (*postgresRepository) Find(email string) (*account.Account, error) {
-	return nil, nil
+func (repo *postgresRepository) Find(email string) (*account.Account, error) {
+	var acc *account.Account
+	res := repo.db.Where(account.Account{Email: email}).First(acc)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+	return acc, nil
 }
 
 func (repo *postgresRepository) Store(account *account.Account) error {
