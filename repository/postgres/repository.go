@@ -68,6 +68,17 @@ func (repo *postgresRepository) Store(account *account.Account) error {
 	return ErrDupAccount
 }
 
-func (*postgresRepository) Delete(email string) (*account.Account, error) {
-	return nil, nil
+func (repo *postgresRepository) Delete(email string) (*account.Account, error) {
+	var acc *account.Account
+	acc, err := repo.Find(email)
+	if err != nil {
+		return nil, err
+	}
+
+	res := repo.db.Delete(acc)
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return acc, nil
 }
