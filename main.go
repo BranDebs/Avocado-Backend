@@ -8,16 +8,35 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/BranDebs/Avocado-Backend/account"
 	"github.com/BranDebs/Avocado-Backend/api"
+	"github.com/BranDebs/Avocado-Backend/repository/postgres"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
 
 func main() {
+	accSvc := setupAccountService()
 	r := setupRouter()
-	initRoutes(r)
+	initRoutes(r, accSvc)
 	runRouter(r)
+}
+
+func setupAccountService() account.AccountService {
+	accPgSettings := postgres.ConnSettings{
+		Host:     "avocadoro-db",
+		Port:     5432,
+		DBName:   "avocadoro",
+		User:     "postgres",
+		Password: "postgres123",
+	}
+	accRepo, err := postgres.NewRepository(accPgSettings)
+	if err != nil {
+		fmt.Printf("Error connecting to DB. Cause: %s", err)
+		return nil
+	}
+	return account.NewAccountService(accRepo)
 }
 
 func setupRouter() *chi.Mux {
@@ -26,8 +45,8 @@ func setupRouter() *chi.Mux {
 	return r
 }
 
-func initRoutes(r *chi.Mux) {
-	h := api.NewHandler(nil)
+func initRoutes(r *chi.Mux, svc account.AccountService) {
+	h := api.NewHandler(svc)
 
 	r.Get("/ping", h.Ping)
 

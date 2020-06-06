@@ -39,7 +39,7 @@ func newGormDB(connStr string) (*gorm.DB, error) {
 	return db, nil
 }
 
-func NewPostgresRepository(settings ConnSettings) (account.AccountRepository, error) {
+func NewRepository(settings ConnSettings) (account.AccountRepository, error) {
 	db, err := newGormDB(settings.String())
 	if err != nil {
 		return nil, err
