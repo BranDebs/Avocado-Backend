@@ -8,33 +8,52 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/BranDebs/Avocado-Backend/account"
 	"github.com/BranDebs/Avocado-Backend/api"
+	"github.com/BranDebs/Avocado-Backend/repository/postgres"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
 )
 
 func main() {
-	r := setupRouter()
-	initRoutes(r)
-	runRouter(r)
+	accSvc := setupAccountService()
+	router := setupRouter()
+	initRoutes(router, accSvc)
+	runRouter(router)
+}
+
+func setupAccountService() account.AccountService {
+	accPgSettings := postgres.ConnSettings{
+		Host:     "avocadoro-db",
+		Port:     5432,
+		DBName:   "avocadoro",
+		User:     "postgres",
+		Password: "postgres123",
+	}
+	accRepo, err := postgres.NewRepository(accPgSettings)
+	if err != nil {
+		log.Printf("Error connecting to DB: %s", err)
+		return nil
+	}
+	return account.NewAccountService(accRepo)
 }
 
 func setupRouter() *chi.Mux {
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	return r
+	router := chi.NewRouter()
+	router.Use(middleware.Logger)
+	return router
 }
 
-func initRoutes(r *chi.Mux) {
-	h := api.NewHandler(nil)
+func initRoutes(router *chi.Mux, svc account.AccountService) {
+	handler := api.NewHandler(svc)
 
-	r.Get("/ping", h.Ping)
+	router.Get("/ping", handler.Ping)
 
-	r.Route("/accounts", func(r chi.Router) {
-		r.Get("/", h.GetAccount)
-		r.Post("/", h.PostAccount)
-		r.Delete("/", h.DeleteAccount)
+	router.Route("/accounts", func(r chi.Router) {
+		r.Get("/", handler.GetAccount)
+		r.Post("/", handler.PostAccount)
+		r.Delete("/", handler.DeleteAccount)
 	})
 }
 
