@@ -8,6 +8,8 @@ services:
     container_name: avocadoro-backend
     depends_on:
       - postgres
+    ports:
+      - 8080:8080
     volumes:
       - .:/app
 

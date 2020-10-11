@@ -6,12 +6,8 @@ import (
 
 	"github.com/BranDebs/Avocado-Backend/account"
 
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-)
-
-var (
-	ErrDupAccount error = errors.New("duplicate account error")
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 type postgresRepository struct {
@@ -27,12 +23,12 @@ type ConnSettings struct {
 }
 
 func (c ConnSettings) String() string {
-	return fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s",
+	return fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
 		c.Host, c.Port, c.User, c.DBName, c.Password)
 }
 
 func newGormDB(connStr string) (*gorm.DB, error) {
-	db, err := gorm.Open("postgres", connStr)
+	db, err := gorm.Open(postgres.Open(connStr), &gorm.Config{})
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +40,11 @@ func NewRepository(settings ConnSettings) (account.AccountRepository, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	if err := db.AutoMigrate(&account.Account{}); err != nil {
+		return nil, err
+	}
+
 	repo := postgresRepository{
 		db: db,
 	}
@@ -51,21 +52,26 @@ func NewRepository(settings ConnSettings) (account.AccountRepository, error) {
 }
 
 func (repo *postgresRepository) Find(email string) (*account.Account, error) {
-	var acc *account.Account
-	res := repo.db.Where(account.Account{Email: email}).First(acc)
+	var acc account.Account
+	res := repo.db.Where(account.Account{Email: email}).First(&acc)
 	if res.Error != nil {
+		if errors.Is(res.Error, gorm.ErrRecordNotFound) {
+			return nil, account.ErrRecordNotFound
+		}
 		return nil, res.Error
 	}
-	return acc, nil
+	return &acc, nil
 }
 
-func (repo *postgresRepository) Store(account *account.Account) error {
-	if repo.db.NewRecord(account) {
-		// can store
-		repo.db.Create(account)
-		return nil
+func (repo *postgresRepository) Store(acc *account.Account) error {
+	if _, err := repo.Find(acc.Email); err == nil {
+		return account.ErrDuplicateEmail
 	}
-	return ErrDupAccount
+
+	if err := repo.db.Create(acc).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func (repo *postgresRepository) Delete(email string) (*account.Account, error) {
@@ -79,6 +85,5 @@ func (repo *postgresRepository) Delete(email string) (*account.Account, error) {
 	if res.Error != nil {
 		return nil, res.Error
 	}
-
 	return acc, nil
 }

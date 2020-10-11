@@ -1,11 +1,12 @@
 package account
 
 import (
-	"time"
+	"gorm.io/gorm"
 )
 
 type Account struct {
-	Email     string     `json:"email"`
-	Name      string     `json:"name"`
-	CreatedAt *time.Time `json:"created_at"`
+	gorm.Model
+	Email        string
+	Password     []byte
+	PasswordSalt []byte
 }
