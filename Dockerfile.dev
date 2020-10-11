@@ -6,6 +6,6 @@ RUN apk add --no-cache gcc musl-dev
 COPY ./go.mod ./go.sum ./
 RUN go mod download
 
-COPY . .
+COPY ./ ./
 RUN go get github.com/githubnemo/CompileDaemon
-CMD CompileDaemon -command="go run main.go" -exclude-dir=.git -exclude="*.md" -log-prefix=false -graceful-kill=true
+CMD CompileDaemon -command="./Avocado-Backend" -exclude-dir=.git -exclude="*.md" -log-prefix=false -graceful-kill=true
