@@ -51,9 +51,9 @@ func initRoutes(router *chi.Mux, svc account.AccountService) {
 	router.Get("/ping", handler.Ping)
 
 	router.Route("/accounts", func(r chi.Router) {
-		r.Get("/", handler.GetAccount)
-		r.Post("/", handler.PostAccount)
-		r.Delete("/", handler.DeleteAccount)
+		r.Post("/login", handler.LoginAccount)
+		r.Post("/", handler.CreateAccount)
+		r.Delete("/{email}", handler.DeleteAccount)
 	})
 }
 
