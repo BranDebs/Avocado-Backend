@@ -15,11 +15,11 @@ type postgresRepository struct {
 }
 
 type ConnSettings struct {
-	Host     string
-	Port     int64
-	User     string
-	DBName   string
-	Password string
+	Host     string `mapstructure:"host"`
+	Port     int64  `mapstructure:"port"`
+	User     string `mapstructure:"user"`
+	Password string `mapstructure:"password"`
+	DBName   string `mapstructure:"db_name"`
 }
 
 func (c ConnSettings) String() string {
