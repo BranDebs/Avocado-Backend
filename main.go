@@ -17,26 +17,33 @@ import (
 )
 
 func main() {
-	accSvc := setupAccountService()
+	config, err := newConfig()
+	if err != nil {
+		log.Fatalf("Unable to initialise config: %s", err)
+	}
+
+	accSvc, err := setupAccountService(config)
+	if err != nil {
+		log.Fatalf("Unable to setup account service: %s", err)
+	}
+
 	router := setupRouter()
 	initRoutes(router, accSvc)
-	runRouter(router)
+	runRouter(router, config)
 }
 
-func setupAccountService() account.AccountService {
-	accPgSettings := postgres.ConnSettings{
-		Host:     "avocadoro-db",
-		Port:     5432,
-		DBName:   "avocadoro",
-		User:     "postgres",
-		Password: "postgres123",
+func setupAccountService(c configer) (account.AccountService, error) {
+	var accSettings postgres.ConnSettings
+
+	if err := c.unmarshalKey("db", &accSettings); err != nil {
+		return nil, fmt.Errorf("setup account service: load in config values: %w", err)
 	}
-	accRepo, err := postgres.NewRepository(accPgSettings)
+
+	accRepo, err := postgres.NewRepository(accSettings)
 	if err != nil {
-		log.Printf("Error connecting to DB: %s", err)
-		return nil
+		return nil, fmt.Errorf("setup account service: create account repository: %w", err)
 	}
-	return account.NewAccountService(accRepo)
+	return account.NewAccountService(accRepo), nil
 }
 
 func setupRouter() *chi.Mux {
@@ -57,12 +64,13 @@ func initRoutes(router *chi.Mux, svc account.AccountService) {
 	})
 }
 
-func runRouter(r *chi.Mux) {
+func runRouter(r *chi.Mux, c configer) {
 	errs := make(chan error, 2)
 
 	go func() {
-		log.Println("Running account service.")
-		errs <- http.ListenAndServe(":8080", r)
+		listenAddr := c.getString("app.listening_addr")
+		log.Printf("Running account service on (%s).\n", listenAddr)
+		errs <- http.ListenAndServe(listenAddr, r)
 	}()
 
 	go func() {
