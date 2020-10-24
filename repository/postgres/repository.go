@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/BranDebs/Avocado-Backend/account"
+	"github.com/BranDebs/Avocado-Backend/secrets"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -15,16 +16,18 @@ type postgresRepository struct {
 }
 
 type ConnSettings struct {
-	Host     string `mapstructure:"host"`
-	Port     int64  `mapstructure:"port"`
-	User     string `mapstructure:"user"`
-	Password string `mapstructure:"password"`
-	DBName   string `mapstructure:"db_name"`
+	Host         string `mapstructure:"host"`
+	Port         int64  `mapstructure:"port"`
+	User         string `mapstructure:"user"`
+	PasswordFile string `mapstructure:"password_file"`
+	DBName       string `mapstructure:"db_name"`
 }
 
 func (c ConnSettings) String() string {
+	password, _ := secrets.SingleLineKey(c.PasswordFile)
+
 	return fmt.Sprintf("host=%s port=%d user=%s dbname=%s password=%s sslmode=disable",
-		c.Host, c.Port, c.User, c.DBName, c.Password)
+		c.Host, c.Port, c.User, c.DBName, password)
 }
 
 func newGormDB(connStr string) (*gorm.DB, error) {
