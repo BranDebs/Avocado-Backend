@@ -69,7 +69,6 @@ func (h *handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.acctSvc.Store(&account.Account{Email: acc.Email, Password: []byte(acc.Password)}); err != nil {
-		// log.Printf("Handler.CreateAccount could not store on the database: %s", err)
 		if errors.Is(err, account.ErrDuplicateEmail) {
 			setupError(w, ContentTypeJSON, http.StatusUnprocessableEntity, &Error{
 				Message: CreateAccountErrMsg,
