@@ -10,3 +10,7 @@ type Account struct {
 	Password     []byte
 	PasswordSalt []byte
 }
+
+func (Account) TableName() string {
+	return "account"
+}

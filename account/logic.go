@@ -14,11 +14,20 @@ import (
 const (
 	PW_SALT_BYTES = 32
 	PW_HASH_BYTES = 64
+
+	n = 1 << 14
+	r = 8
+	p = 1
 )
 
 var (
 	ErrRecordNotFound = gorm.ErrRecordNotFound
 	ErrDuplicateEmail = errors.New("email already exists")
+	ErrNotVerified    = errors.New("credentials cannot be verified")
+)
+
+var (
+	signingKey = []byte("4005939b76d58193")
 )
 
 type accountService struct {
@@ -42,7 +51,7 @@ func (s *accountService) Store(account *Account) error {
 		return fmt.Errorf("AccountService.Store: generating salt: %w", err)
 	}
 
-	hash, err := scrypt.Key([]byte(account.Password), salt, 1<<14, 8, 1, PW_HASH_BYTES)
+	hash, err := scrypt.Key([]byte(account.Password), salt, n, r, p, PW_HASH_BYTES)
 	if err != nil {
 		return fmt.Errorf("AccountService.Store: generating password hash: %w", err)
 	}
@@ -57,11 +66,17 @@ func (s *accountService) Delete(email string) (*Account, error) {
 	return s.accountRepo.Delete(email)
 }
 
-func (s *accountService) Verify(acc *Account, password string) (bool, error) {
-	hash, err := scrypt.Key([]byte(password), acc.PasswordSalt, 1<<14, 8, 1, PW_HASH_BYTES)
+func (s *accountService) Verify(acc *Account, password string) (string, error) {
+	hash, err := scrypt.Key([]byte(password), acc.PasswordSalt, n, r, p, PW_HASH_BYTES)
 	if err != nil {
-		return false, fmt.Errorf("AccountService.Verify: generating password hash: %w", err)
+		return "", fmt.Errorf("AccountService.Verify: generating password hash: %w", err)
 	}
 
-	return bytes.Equal(hash, acc.Password), nil
+	if !bytes.Equal(hash, acc.Password) {
+		return "", ErrNotVerified
+	}
+
+	jwt := NewJWT(acc.Email, 100)
+
+	return jwt.Token(signingKey), nil
 }
