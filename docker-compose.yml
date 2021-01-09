@@ -11,8 +11,13 @@ services:
     secrets:
       - source: db_password
         target: /app/db_password
+      - source: signing_key
+        target: /app/signing_key
 
 secrets:
   db_password:
     file:
       keys/db_password
+  signing_key:
+    file:
+      keys/signing_key

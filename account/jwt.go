@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+
+	"github.com/BranDebs/Avocado-Backend/secrets"
 )
 
 const (
@@ -11,6 +13,18 @@ const (
 
 	issuer = "avocadoro"
 )
+
+type JWTSettings struct {
+	SigningKeyFile string `mapstructure:"signing_key_file"`
+	TTL            int64  `mapstructure:"ttl"`
+
+	SigningKey []byte
+}
+
+func (j *JWTSettings) Init() {
+	signingKey, _ := secrets.SingleLineKey(j.SigningKeyFile)
+	j.SigningKey = signingKey
+}
 
 type JWT jwt.StandardClaims
 

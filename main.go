@@ -33,20 +33,24 @@ func main() {
 }
 
 func setupAccountService(c configer) (account.AccountService, error) {
-	var accSettings postgres.ConnSettings
+	var dbSettings postgres.ConnSettings
 
-	if err := c.unmarshalKey("db", &accSettings); err != nil {
-		return nil, fmt.Errorf("setup account service: load in config values: %w", err)
+	if err := c.unmarshalKey("db", &dbSettings); err != nil {
+		return nil, fmt.Errorf("setup account service: load in db config: %w", err)
 	}
 
-	accRepo, err := postgres.NewRepository(accSettings)
+	accRepo, err := postgres.NewRepository(dbSettings)
 	if err != nil {
 		return nil, fmt.Errorf("setup account service: create account repository: %w", err)
 	}
 
-	jwtTTL := c.getInt64("jwt.ttl")
+	var jwtSettings account.JWTSettings
 
-	return account.NewAccountService(accRepo, jwtTTL), nil
+	if err := c.unmarshalKey("jwt", &jwtSettings); err != nil {
+		return nil, fmt.Errorf("setup account service: load in jwt config: %w", err)
+	}
+
+	return account.NewAccountService(accRepo, &jwtSettings), nil
 }
 
 func setupRouter() *chi.Mux {

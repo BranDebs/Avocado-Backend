@@ -26,21 +26,18 @@ var (
 	ErrNotVerified    = errors.New("credentials cannot be verified")
 )
 
-var (
-	signingKey = []byte("4005939b76d58193")
-)
-
 type accountService struct {
 	accountRepo AccountRepository
 
-	jwtTTL int64
+	jwtSettings *JWTSettings
 }
 
-func NewAccountService(repo AccountRepository, ttlSeconds int64) AccountService {
+func NewAccountService(repo AccountRepository, jwtSettings *JWTSettings) AccountService {
+	jwtSettings.Init()
+
 	return &accountService{
 		accountRepo: repo,
-
-		jwtTTL: ttlSeconds,
+		jwtSettings: jwtSettings,
 	}
 }
 
@@ -80,7 +77,7 @@ func (s *accountService) Verify(acc *Account, password string) (string, error) {
 		return "", ErrNotVerified
 	}
 
-	jwt := NewJWT(acc.Email, s.jwtTTL)
+	jwt := NewJWT(acc.Email, s.jwtSettings.TTL)
 
-	return jwt.Token(signingKey), nil
+	return jwt.Token(s.jwtSettings.SigningKey), nil
 }
