@@ -8,3 +8,11 @@ services:
     container_name: avocadoro-backend
     ports:
       - '9090:8080'
+    secrets:
+      - source: db_password
+        target: /app/db_password
+
+secrets:
+  db_password:
+    file:
+      keys/db_password

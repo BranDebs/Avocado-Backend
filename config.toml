@@ -5,5 +5,5 @@ listening_addr = "0.0.0.0:8080"
 host = "avocadoro-db"
 port = 5432
 user = "postgres"
-password = "postgres123"
+password_file = "db_password"
 db_name = "avocadoro"
