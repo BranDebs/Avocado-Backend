@@ -43,7 +43,10 @@ func setupAccountService(c configer) (account.AccountService, error) {
 	if err != nil {
 		return nil, fmt.Errorf("setup account service: create account repository: %w", err)
 	}
-	return account.NewAccountService(accRepo), nil
+
+	jwtTTL := c.getInt64("jwt.ttl")
+
+	return account.NewAccountService(accRepo, jwtTTL), nil
 }
 
 func setupRouter() *chi.Mux {

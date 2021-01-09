@@ -32,11 +32,15 @@ var (
 
 type accountService struct {
 	accountRepo AccountRepository
+
+	jwtTTL int64
 }
 
-func NewAccountService(repo AccountRepository) AccountService {
+func NewAccountService(repo AccountRepository, ttlSeconds int64) AccountService {
 	return &accountService{
 		accountRepo: repo,
+
+		jwtTTL: ttlSeconds,
 	}
 }
 
@@ -76,7 +80,7 @@ func (s *accountService) Verify(acc *Account, password string) (string, error) {
 		return "", ErrNotVerified
 	}
 
-	jwt := NewJWT(acc.Email, 100)
+	jwt := NewJWT(acc.Email, s.jwtTTL)
 
 	return jwt.Token(signingKey), nil
 }
