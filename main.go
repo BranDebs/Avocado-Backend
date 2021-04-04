@@ -11,6 +11,7 @@ import (
 	"github.com/BranDebs/Avocado-Backend/account"
 	"github.com/BranDebs/Avocado-Backend/api"
 	"github.com/BranDebs/Avocado-Backend/repository/postgres"
+	"github.com/BranDebs/Avocado-Backend/task"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
@@ -23,35 +24,40 @@ func main() {
 		log.Fatalf("Unable to initialise config: %s", err)
 	}
 
-	accSvc, err := setupAccountService(config)
+	accSvc, taskSvc, err := setupServices(config)
 	if err != nil {
 		log.Fatalf("Unable to setup account service: %s", err)
 	}
 
 	router := setupRouter()
-	initRoutes(router, accSvc)
+	initRoutes(router, accSvc, taskSvc)
 	runRouter(router, config)
 }
 
-func setupAccountService(c configer) (account.AccountService, error) {
+func setupServices(c configer) (account.AccountService, task.Service, error) {
 	var dbSettings postgres.ConnSettings
 
 	if err := c.unmarshalKey("db", &dbSettings); err != nil {
-		return nil, fmt.Errorf("setup account service: load in db config: %w", err)
+		return nil, nil, fmt.Errorf("setup services: load in db config: %w", err)
 	}
 
 	accRepo, err := postgres.NewAccountRepository(dbSettings)
 	if err != nil {
-		return nil, fmt.Errorf("setup account service: create account repository: %w", err)
+		return nil, nil, fmt.Errorf("setup services: create account repository: %w", err)
 	}
 
 	var jwtSettings account.JWTSettings
 
 	if err := c.unmarshalKey("jwt", &jwtSettings); err != nil {
-		return nil, fmt.Errorf("setup account service: load in jwt config: %w", err)
+		return nil, nil, fmt.Errorf("setup services: load in jwt config: %w", err)
 	}
 
-	return account.NewAccountService(accRepo, &jwtSettings), nil
+	taskRepo, err := postgres.NewTaskRepository(dbSettings)
+	if err != nil {
+		return nil, nil, fmt.Errorf("setup services: create task repository: %w", err)
+	}
+
+	return account.NewAccountService(accRepo, &jwtSettings), task.NewService(taskRepo), nil
 }
 
 func setupRouter() *chi.Mux {
@@ -67,8 +73,8 @@ func setupRouter() *chi.Mux {
 	return router
 }
 
-func initRoutes(router *chi.Mux, svc account.AccountService) {
-	handler := api.NewHandler(svc)
+func initRoutes(router *chi.Mux, account account.AccountService, task task.Service) {
+	handler := api.NewHandler(account, task)
 
 	router.Get("/ping", handler.Ping)
 
@@ -76,6 +82,13 @@ func initRoutes(router *chi.Mux, svc account.AccountService) {
 		r.Post("/login", handler.LoginAccount)
 		r.Post("/", handler.CreateAccount)
 		r.Delete("/{email}", handler.DeleteAccount)
+	})
+
+	router.Route("/tasks", func(r chi.Router) {
+		r.Post("/", handler.CreateTask)
+		r.Get("/", handler.FindTasks)
+		r.Put("/{id}", handler.UpdateTask)
+		r.Delete("/{id}", handler.DeleteTask)
 	})
 }
 

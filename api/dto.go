@@ -8,3 +8,7 @@ type Account struct {
 type JWTResponse struct {
 	Token string `json:"token"`
 }
+
+type Task struct {
+	Description string `json:"description"`
+}
