@@ -12,10 +12,6 @@ import (
 const (
 	ContentTypeJSON = "application/json"
 
-	CreateAccountErrMsg = "Failed to create an account."
-	LoginAccountErrMsg  = "Failed to login into account."
-	DeleteAccountErrMsg = "Failed to delete account."
-
 	DefaultErrDetail  = "Something wrong happened on our end, try again in 30 minutes time."
 	JSONBodyErrDetail = "Ensure that request body is a valid JSON object."
 )
