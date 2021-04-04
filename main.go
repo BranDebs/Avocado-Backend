@@ -34,7 +34,7 @@ func main() {
 	runRouter(router, config)
 }
 
-func setupServices(c configer) (account.AccountService, task.Service, error) {
+func setupServices(c configer) (account.Service, task.Service, error) {
 	var dbSettings postgres.ConnSettings
 
 	if err := c.unmarshalKey("db", &dbSettings); err != nil {
@@ -73,7 +73,7 @@ func setupRouter() *chi.Mux {
 	return router
 }
 
-func initRoutes(router *chi.Mux, account account.AccountService, task task.Service) {
+func initRoutes(router *chi.Mux, account account.Service, task task.Service) {
 	handler := api.NewHandler(account, task)
 
 	router.Get("/ping", handler.Ping)

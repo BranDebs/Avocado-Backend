@@ -11,7 +11,7 @@ type accountRepository struct {
 	db *gorm.DB
 }
 
-func NewAccountRepository(settings ConnSettings) (account.AccountRepository, error) {
+func NewAccountRepository(settings ConnSettings) (account.Repository, error) {
 	db, err := newGormDB(settings.String())
 	if err != nil {
 		return nil, err

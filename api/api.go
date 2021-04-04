@@ -34,11 +34,11 @@ type Handler interface {
 }
 
 type handler struct {
-	acctSvc account.AccountService
+	acctSvc account.Service
 	taskSvc task.Service
 }
 
-func NewHandler(acctSvc account.AccountService, taskSvc task.Service) Handler {
+func NewHandler(acctSvc account.Service, taskSvc task.Service) Handler {
 	return &handler{
 		acctSvc: acctSvc,
 		taskSvc: taskSvc,

@@ -27,12 +27,12 @@ var (
 )
 
 type accountService struct {
-	accountRepo AccountRepository
+	accountRepo Repository
 
 	jwtSettings *JWTSettings
 }
 
-func NewAccountService(repo AccountRepository, jwtSettings *JWTSettings) AccountService {
+func NewAccountService(repo Repository, jwtSettings *JWTSettings) Service {
 	jwtSettings.Init()
 
 	return &accountService{
@@ -49,12 +49,12 @@ func (s *accountService) Store(account *Account) error {
 	salt := make([]byte, PW_SALT_BYTES)
 	_, err := io.ReadFull(rand.Reader, salt)
 	if err != nil {
-		return fmt.Errorf("AccountService.Store: generating salt: %w", err)
+		return fmt.Errorf("Service.Store: generating salt: %w", err)
 	}
 
 	hash, err := scrypt.Key([]byte(account.Password), salt, n, r, p, PW_HASH_BYTES)
 	if err != nil {
-		return fmt.Errorf("AccountService.Store: generating password hash: %w", err)
+		return fmt.Errorf("Service.Store: generating password hash: %w", err)
 	}
 
 	account.Password = hash
@@ -70,7 +70,7 @@ func (s *accountService) Delete(email string) (*Account, error) {
 func (s *accountService) Verify(acc *Account, password string) (string, error) {
 	hash, err := scrypt.Key([]byte(password), acc.PasswordSalt, n, r, p, PW_HASH_BYTES)
 	if err != nil {
-		return "", fmt.Errorf("AccountService.Verify: generating password hash: %w", err)
+		return "", fmt.Errorf("Service.Verify: generating password hash: %w", err)
 	}
 
 	if !bytes.Equal(hash, acc.Password) {
