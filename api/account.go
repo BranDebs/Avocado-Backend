@@ -11,6 +11,12 @@ import (
 	"github.com/go-chi/chi"
 )
 
+const (
+	CreateAccountErrMsg = "Failed to create an account."
+	LoginAccountErrMsg  = "Failed to login into account."
+	DeleteAccountErrMsg = "Failed to delete account."
+)
+
 func (h *handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	var bbuf bytes.Buffer
 

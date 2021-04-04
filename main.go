@@ -57,7 +57,7 @@ func setupServices(c configer) (account.Service, task.Service, error) {
 		return nil, nil, fmt.Errorf("setup services: create task repository: %w", err)
 	}
 
-	return account.NewAccountService(accRepo, &jwtSettings), task.NewService(taskRepo), nil
+	return account.NewService(accRepo, &jwtSettings), task.NewService(taskRepo), nil
 }
 
 func setupRouter() *chi.Mux {
