@@ -27,12 +27,12 @@ var (
 )
 
 type accountService struct {
-	accountRepo AccountRepository
+	accountRepo Repository
 
 	jwtSettings *JWTSettings
 }
 
-func NewAccountService(repo AccountRepository, jwtSettings *JWTSettings) AccountService {
+func NewService(repo Repository, jwtSettings *JWTSettings) Service {
 	jwtSettings.Init()
 
 	return &accountService{

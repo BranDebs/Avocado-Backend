@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/BranDebs/Avocado-Backend/account"
@@ -13,37 +12,10 @@ import (
 )
 
 const (
-	ContentTypeJSON = "application/json"
-
 	CreateAccountErrMsg = "Failed to create an account."
 	LoginAccountErrMsg  = "Failed to login into account."
 	DeleteAccountErrMsg = "Failed to delete account."
-
-	DefaultErrDetail  = "Something wrong happened on our end, try again in 30 minutes time."
-	JSONBodyErrDetail = "Ensure that request body is a valid JSON object."
 )
-
-type Handler interface {
-	CreateAccount(http.ResponseWriter, *http.Request)
-	LoginAccount(http.ResponseWriter, *http.Request)
-	DeleteAccount(http.ResponseWriter, *http.Request)
-
-	Ping(http.ResponseWriter, *http.Request)
-}
-
-type handler struct {
-	acctSvc account.AccountService
-}
-
-func NewHandler(acctSvc account.AccountService) Handler {
-	return &handler{
-		acctSvc: acctSvc,
-	}
-}
-
-func (*handler) Ping(w http.ResponseWriter, r *http.Request) {
-	setupResponse(w, ContentTypeJSON, http.StatusOK, []byte(`{"message": "Pong!"}`))
-}
 
 func (h *handler) CreateAccount(w http.ResponseWriter, r *http.Request) {
 	var bbuf bytes.Buffer
@@ -190,18 +162,4 @@ func (h *handler) DeleteAccount(w http.ResponseWriter, r *http.Request) {
 	}
 
 	setupResponse(w, ContentTypeJSON, http.StatusNoContent, nil)
-}
-
-func setupResponse(w http.ResponseWriter, contentType string, statusCode int, body []byte) {
-	w.Header().Set("Content-Type", contentType)
-	w.WriteHeader(statusCode)
-	if _, err := w.Write(body); err != nil {
-		log.Println(err)
-	}
-}
-
-func setupError(w http.ResponseWriter, contentType string, statusCode int, err *Error) {
-	resp, _ := json.Marshal(err)
-	log.Printf("%s: %s", err.Message, err.Cause)
-	setupResponse(w, contentType, statusCode, resp)
 }
