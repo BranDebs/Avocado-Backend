@@ -139,26 +139,26 @@ func (h *handler) LoginAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	success, err := h.acctSvc.Verify(foundAcc, acc.Password)
+	signedJWT, err := h.acctSvc.Verify(foundAcc, acc.Password)
 	if err != nil {
+		detail := DefaultErrDetail
+		if errors.Is(err, account.ErrNotVerified) {
+			detail = "Invalid login credentials."
+		}
+
 		setupError(w, ContentTypeJSON, http.StatusInternalServerError, &Error{
 			Message: LoginAccountErrMsg,
-			Detail:  DefaultErrDetail,
+			Detail:  detail,
 			Cause:   err,
 		})
 		return
 	}
 
-	if !success {
-		setupError(w, ContentTypeJSON, http.StatusUnauthorized, &Error{
-			Message: LoginAccountErrMsg,
-			Detail:  "Invalid login credentials.",
-			Cause:   err,
-		})
-		return
+	jwtRes := &JWTResponse{
+		Token: signedJWT,
 	}
 
-	resp, err := json.Marshal(&acc)
+	resp, err := json.Marshal(jwtRes)
 	if err != nil {
 		setupError(w, ContentTypeJSON, http.StatusInternalServerError, &Error{
 			Message: LoginAccountErrMsg,

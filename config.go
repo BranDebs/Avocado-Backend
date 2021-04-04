@@ -8,6 +8,8 @@ import (
 
 type configer interface {
 	unmarshalKey(key string, rawVal interface{}) error
+
+	getInt64(key string) int64
 	getString(key string) string
 }
 
@@ -31,6 +33,10 @@ func newConfig() (configer, error) {
 
 func (c *config) unmarshalKey(key string, rawVal interface{}) error {
 	return c.internal.UnmarshalKey(key, rawVal)
+}
+
+func (c *config) getInt64(key string) int64 {
+	return c.internal.GetInt64(key)
 }
 
 func (c *config) getString(key string) string {

@@ -7,3 +7,7 @@ port = 5432
 user = "postgres"
 password_file = "db_password"
 db_name = "avocadoro"
+
+[jwt]
+signing_key_file = "signing_key"
+ttl = 1800 # in seconds
