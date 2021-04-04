@@ -40,7 +40,7 @@ func setupAccountService(c configer) (account.AccountService, error) {
 		return nil, fmt.Errorf("setup account service: load in db config: %w", err)
 	}
 
-	accRepo, err := postgres.NewRepository(dbSettings)
+	accRepo, err := postgres.NewAccountRepository(dbSettings)
 	if err != nil {
 		return nil, fmt.Errorf("setup account service: create account repository: %w", err)
 	}
