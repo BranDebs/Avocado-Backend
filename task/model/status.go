@@ -1,5 +1,6 @@
 package model
 
+// Status represents a user's status for their task.
 type Status uint
 
 const (
@@ -9,6 +10,7 @@ const (
 	StatusCompleted
 )
 
+// String returns `Status` enum type into a readable string.
 func (s *Status) String() string {
 	switch *s {
 	case StatusTodo:
@@ -21,6 +23,7 @@ func (s *Status) String() string {
 	return "unknown"
 }
 
+// Valid returns true if `Status` is a valid enum type.
 func (t *Status) Valid() bool {
 	return t.String() != "unknown"
 }
