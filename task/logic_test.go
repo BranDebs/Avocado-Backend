@@ -3,11 +3,13 @@ package task
 import (
 	"testing"
 
+	"github.com/BranDebs/Avocado-Backend/task/mocks"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewService(t *testing.T) {
-	var rMock MockRepository
+	var rMock mocks.Repository
 
 	svc := NewService(&rMock)
 
