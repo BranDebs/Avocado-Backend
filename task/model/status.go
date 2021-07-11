@@ -24,6 +24,6 @@ func (s *Status) String() string {
 }
 
 // Valid returns true if `Status` is a valid enum type.
-func (t *Status) Valid() bool {
-	return t.String() != "unknown"
+func (s *Status) Valid() bool {
+	return s.String() != "unknown"
 }
