@@ -12,4 +12,7 @@
 *.out
 
 # Avocadoro
+db_password
+signing_key
+
 Avocado-Backend
