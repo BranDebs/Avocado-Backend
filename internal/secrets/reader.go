@@ -1,4 +1,4 @@
-// Package secrets handles the interfacing with docker secrets.
+// Package secrets handles interfacing with docker secrets.
 package secrets
 
 import (
@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// SingleLineKey returns the key from a single line in a secrets file.
 func SingleLineKey(filename string) ([]byte, error) {
 	file, err := os.Open(filename)
 	if err != nil {

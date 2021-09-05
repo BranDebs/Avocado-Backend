@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/BranDebs/Avocado-Backend/internal/jwt"
+
 	"golang.org/x/crypto/scrypt"
 	"gorm.io/gorm"
 )
@@ -29,10 +31,10 @@ var (
 type accountService struct {
 	accountRepo Repository
 
-	jwtSettings *JWTSettings
+	jwtSettings *jwt.Settings
 }
 
-func NewService(repo Repository, jwtSettings *JWTSettings) Service {
+func NewService(repo Repository, jwtSettings *jwt.Settings) Service {
 	jwtSettings.Init()
 
 	return &accountService{
@@ -77,7 +79,7 @@ func (s *accountService) Verify(acc *Account, password string) (string, error) {
 		return "", ErrNotVerified
 	}
 
-	jwt := NewJWT(acc.Email, s.jwtSettings.TTL)
+	jwt := jwt.New(acc.Email, s.jwtSettings.TTL)
 
 	return jwt.Token(s.jwtSettings.SigningKey), nil
 }
