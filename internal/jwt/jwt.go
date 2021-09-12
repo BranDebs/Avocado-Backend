@@ -24,6 +24,10 @@ const (
 var (
 	// ErrSigningMethod is raised if the incoming token is not signed using an expected signing function.
 	ErrSigningMethod = errors.New("unexpected signing method")
+	// ErrInvalidClaims is raised if claims parsed is not in expected format.
+	ErrInvalidClaims = errors.New("unexpected claims")
+	// ErrAudienceClaim is raised if the audience is not a valid.
+	ErrAudienceClaim = errors.New("unexpected audience claim")
 )
 
 // Settings stores JWT settings present in the config file.
@@ -77,6 +81,15 @@ func Verify(settings *Settings, tokenStr string) (bool, error) {
 	token, err := jwt.Parse(tokenStr, keyFunc(settings))
 	if err != nil {
 		return false, fmt.Errorf("failed to parse token string err: %w", err)
+	}
+
+	claims, ok := token.Claims.(jwt.StandardClaims)
+	if !ok {
+		return false, ErrInvalidClaims
+	}
+
+	if claims.Audience == "" {
+		return false, ErrAudienceClaim
 	}
 
 	return token.Valid, nil
