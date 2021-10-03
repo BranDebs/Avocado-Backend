@@ -3,7 +3,7 @@ package postgres
 import (
 	"fmt"
 
-	"github.com/BranDebs/Avocado-Backend/secrets"
+	"github.com/BranDebs/Avocado-Backend/internal/secrets"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

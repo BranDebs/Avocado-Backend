@@ -10,6 +10,8 @@ import (
 
 	"github.com/BranDebs/Avocado-Backend/account"
 	"github.com/BranDebs/Avocado-Backend/api"
+	"github.com/BranDebs/Avocado-Backend/internal/jwt"
+	"github.com/BranDebs/Avocado-Backend/middlewares"
 	"github.com/BranDebs/Avocado-Backend/repository/postgres"
 	"github.com/BranDebs/Avocado-Backend/task"
 
@@ -29,7 +31,7 @@ func main() {
 		log.Fatalf("Unable to setup account service: %s", err)
 	}
 
-	router := setupRouter()
+	router := setupRouter(config)
 	initRoutes(router, accSvc, taskSvc)
 	runRouter(router, config)
 }
@@ -46,7 +48,7 @@ func setupServices(c configer) (account.Service, task.Service, error) {
 		return nil, nil, fmt.Errorf("setup services: create account repository: %w", err)
 	}
 
-	var jwtSettings account.JWTSettings
+	var jwtSettings jwt.Settings
 
 	if err := c.unmarshalKey("jwt", &jwtSettings); err != nil {
 		return nil, nil, fmt.Errorf("setup services: load in jwt config: %w", err)
@@ -60,7 +62,12 @@ func setupServices(c configer) (account.Service, task.Service, error) {
 	return account.NewService(accRepo, &jwtSettings), task.NewService(taskRepo), nil
 }
 
-func setupRouter() *chi.Mux {
+func setupRouter(config configer) *chi.Mux {
+	var jwtSettings *jwt.Settings
+	if err := config.unmarshalKey("jwt", &jwtSettings); err != nil {
+		panic("Failed to config JWT settings.")
+	}
+
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 	router.Use(cors.Handler(cors.Options{
@@ -70,6 +77,7 @@ func setupRouter() *chi.Mux {
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
+	router.Use(middlewares.Authorisation(jwtSettings))
 	return router
 }
 
