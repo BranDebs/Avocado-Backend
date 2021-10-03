@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 
 	"github.com/BranDebs/Avocado-Backend/internal/secrets"
 )
@@ -83,15 +83,9 @@ func Verify(settings *Settings, tokenStr string) (bool, error) {
 		return false, fmt.Errorf("failed to parse token string err: %w", err)
 	}
 
-	claims, ok := token.Claims.(jwt.StandardClaims)
+	_, ok := token.Claims.(jwt.StandardClaims)
 	if !ok {
 		return false, ErrInvalidClaims
-	}
-
-	// CVE-2020-26160
-	// https://github.com/advisories/GHSA-w73w-5m7g-f7qc
-	if claims.Audience == "" {
-		return false, ErrAudienceClaim
 	}
 
 	return token.Valid, nil
