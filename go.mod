@@ -1,11 +1,11 @@
 module github.com/BranDebs/Avocado-Backend
 
-go 1.14
+go 1.16
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-chi/chi v4.1.0+incompatible
 	github.com/go-chi/cors v1.2.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.5.1
